@@ -48,3 +48,4 @@ python vit_detr_train.py
 python vit_detr_pred.py
 ```
 
+![](https://gitclone.com/download1/aliendao/weixin-aliendao.jpg)

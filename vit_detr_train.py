@@ -190,7 +190,7 @@ def main():
         batch_size=BATCH_SIZE, shuffle=False, num_workers=2, collate_fn=collate_fn)
     print(f'训练集: {len(train_loader.dataset)}, 验证集: {len(val_loader.dataset)}')
     # 模型
-    model = DETR(num_classes=80, num_queries=10,num_heads=12, emb_size=768).to(device)
+    model = DETR(num_classes=80, num_queries=100,num_heads=8, emb_size=768).to(device)
     print(f'参数量: {sum(p.numel() for p in model.parameters()):,}')
     # 优化器
     optimizer = AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
