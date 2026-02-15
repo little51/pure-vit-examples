@@ -1,0 +1,5 @@
+pillow==12.1.1
+matplotlib==3.10.8
+einops==0.8.2
+torchsummary==1.5.1
+scipy==1.17.0

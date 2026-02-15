@@ -205,3 +205,13 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+/coco128_yolo.zip
+/detection_result.jpg
+/final_model.pth
+/test03_detected.jpg
+/test04_detected.jpg
+/test05_detected.jpg
+/__pycache__
+/coco128_yolo
+/my_data_dir
+/best_model.pth
