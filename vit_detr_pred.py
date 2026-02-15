@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 
 # 导入模型定义
-from detr_model import DETR, postprocess
+from vit_detr_model import DETR, postprocess
 
 # COCO类别名称
 COCO_CLASSES = [
