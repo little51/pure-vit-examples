@@ -20,7 +20,6 @@ class COCO128Dataset(Dataset):
         self.img_dir = self.root_dir / 'images' / f'{split}2017'
         self.label_dir = self.root_dir / 'labels' / f'{split}2017'
         self.img_files = sorted(list(self.img_dir.glob('*.jpg')))
-        
         self.transform = Compose([
             Resize((img_size, img_size)),
             ToTensor(),
@@ -55,9 +54,6 @@ class COCO128Dataset(Dataset):
             'image_id': torch.tensor([idx]),
             'orig_size': torch.tensor([orig_h, orig_w])
         }
-
-def collate_fn(batch):
-    return torch.stack([b['image'] for b in batch]), [{k: v for k, v in b.items() if k != 'image'} for b in batch]
 
 ################################
 # 2. 匈牙利匹配器
@@ -175,6 +171,10 @@ def validate(model, criterion, loader, device):
     return avg_loss
 
 
+def collate_fn(batch):
+    return torch.stack([b['image'] for b in batch]), [{k: v for k, v in b.items() if k != 'image'} for b in batch]
+
+
 ################################
 # 6. 主函数
 ################################
@@ -184,10 +184,10 @@ def main():
     # 数据加载
     train_loader = DataLoader(
         COCO128Dataset('coco128_yolo', 'train'),
-        batch_size=BATCH_SIZE, shuffle=True, num_workers=2, collate_fn=collate_fn)
+        batch_size=BATCH_SIZE, shuffle=True, num_workers=0, collate_fn=collate_fn)
     val_loader = DataLoader(
         COCO128Dataset('coco128_yolo', 'val'),
-        batch_size=BATCH_SIZE, shuffle=False, num_workers=2, collate_fn=collate_fn)
+        batch_size=BATCH_SIZE, shuffle=False, num_workers=0, collate_fn=collate_fn)
     print(f'训练集: {len(train_loader.dataset)}, 验证集: {len(val_loader.dataset)}')
     # 模型
     model = DETR(num_classes=80, num_queries=100,num_heads=8, emb_size=768).to(device)

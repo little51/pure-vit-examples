@@ -51,10 +51,8 @@ class MultiHeadSelfAttention(nn.Module):
         qkv = self.qkv(x).reshape(b, n, 3, self.num_heads, self.emb_size // self.num_heads)
         qkv = qkv.permute(2, 0, 3, 1, 4)
         q, k, v = qkv[0], qkv[1], qkv[2]
-        
         attn = (q @ k.transpose(-2, -1)) * (self.emb_size // self.num_heads) ** -0.5
         attn = attn.softmax(dim=-1)
-        
         x = (attn @ v).transpose(1, 2).reshape(b, n, self.emb_size)
         return self.proj(x)
 
@@ -93,29 +91,23 @@ class TransformerDecoderLayer(nn.Module):
         super().__init__()
         self.norm1 = nn.LayerNorm(emb_size)
         self.self_attn = MultiHeadSelfAttention(emb_size, num_heads)
-        
         self.norm2 = nn.LayerNorm(emb_size)
         self.cross_attn = nn.MultiheadAttention(emb_size, num_heads, batch_first=True)
-        
         self.norm3 = nn.LayerNorm(emb_size)
         self.ffn = FeedForward(emb_size)
-        
         self.dropout = nn.Dropout(dropout) 
     
     def forward(self, query, memory):
         # 自注意力
         q = self.norm1(query)
         query = query + self.dropout(self.self_attn(q))
-        
         # 交叉注意力
         q = self.norm2(query)
         attn_out, _ = self.cross_attn(q, memory, memory)
         query = query + self.dropout(attn_out)
-        
         # FFN
         q = self.norm3(query)
         query = query + self.dropout(self.ffn(q))
-        
         return query
 
 ################################
@@ -159,23 +151,18 @@ class DETR(nn.Module):
     def forward(self, x):
         # Patch嵌入
         x = self.patch_embed(x)  # [B, N+1, E]
-        
         # 编码器
         for layer in self.encoder:
             x = layer(x)
         memory = x[:, 1:, :]  # [B, N, E] 移除cls_token
-        
         # 解码器
         batch_size = x.shape[0]
         query = self.query_embed.weight.unsqueeze(0).repeat(batch_size, 1, 1)
-        
         for layer in self.decoder:
             query = layer(query, memory)
-        
         # 预测
         class_logits = self.class_head(query)  # [B, Q, C+1]
         bbox_preds = self.bbox_head(query)     # [B, Q, 4]
-        
         return class_logits, bbox_preds
 
 ################################
@@ -210,12 +197,10 @@ def postprocess(pred_logits, pred_boxes, conf_thresh=0.5, img_size=640):
 # 创建模型
 model = DETR(num_classes=80, num_queries=100)
 print(f"模型参数量: {sum(p.numel() for p in model.parameters()):,}")
-
 # 前向传播
 class_logits, bbox_preds = model(x)
 print(f"类别输出: {class_logits.shape}")  # [1, 100, 81]
 print(f"边界框输出: {bbox_preds.shape}")   # [1, 100, 4]
-
 # 后处理
 boxes, labels, scores = postprocess(class_logits, bbox_preds, conf_thresh=0.3)
 print(f"检测到 {len(boxes)} 个目标")
